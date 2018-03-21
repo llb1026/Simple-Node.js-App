@@ -76,15 +76,16 @@ router.get('/get', function(req, res) {
 });
 
 // 1시간마다 랜덤으로 덤프 데이터 생성
-router.get('/making_dump', function () {
+setInterval(function() {
     var random_string = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 6);
     var random_number = (Math.random() * (40.00 - 0.01) + 0.01).toFixed(2);
-    var url = "http://localhost:3000/update?api_key="+random_string+"&field1="+random_number;
-    console.log(url);
+    var date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+    var body = date + ' / ' + 'api_key=' + random_string + '&field1=' + random_number + '\n';
 
-    setInterval(function() {
-        http.get(url);
-    }, 60 * 60 * 1000);
-});
+    fs.appendFile('data.txt', body, function (err) {
+        if (err) throw err;
+        console.log(body)
+    });
+}, 60 * 60 * 1000);
 
 module.exports = router;
