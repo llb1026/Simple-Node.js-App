@@ -62,6 +62,48 @@ router.get('/get', function(req, res) {
     res.render('get', {title: '20131144 JIYUN LEE | DUMP DATAS', profile: undefined, value: tmp, result: result});
 });
 
+router.get('/data', function (req, res) {
+	var data = fs.readFileSync('./data.txt', 'utf8');
+	var lines = data.split('\n');
+	var total_line = lines.length-1;
+	
+	function get_line(filename, line_no, callback) {
+		var data = fs.readFileSync(filename, 'utf8');
+		var lines = data.split('\n');
+		if(+line_no > lines.length) {
+			throw new Error('Out of range');
+		}
+		callback(null, lines[+line_no]);
+	}
+
+	var result = [];
+
+	for (var x=1; x<=total_line; x++) {
+		get_line('./data.txt', total_line-x, function(err, line) {
+			result[x] = line;
+		});
+	}
+	
+	res.render('data', {title: '20131144 JIYUN LEE', value: total_line, result: result});
+});
+
+// 데이터 파일 csv로 다운받음
+router.get('/download', function (req, res) {
+	/*
+	var url = 'http://54.162.161.140:3000/data';
+	var options = {
+		directory: './filedownload/',
+		filename: '20131144.csv'
+	};
+
+	download(url, options, function (err) {
+		if (err) throw err;
+	});
+	res.redirect('/');
+	*/
+	res.download('./data.txt', '20131144.csv');
+});
+
 // 일정시간마다 랜덤으로 덤프 데이터 생성
 setInterval(function() {
     var random_string = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 6);
